@@ -1,30 +1,25 @@
 open BsReactNative;
 
-type state = {
-  saved: bool,
-  text: string,
-};
+let component = ReasonReact.statelessComponent("Editor");
 
-type action =
-  | ChangeText(string);
-
-let component = ReasonReact.reducerComponent("Editor");
-
-let make = (~autoFocus=?, _children) => {
+let make =
+    (~note: Note.t, ~onBack, ~onNoteChanged, ~autoFocus=true, _children) => {
   ...component,
-  initialState: () => {saved: false, text: "Write a note here!"},
-  reducer: (action, state) =>
-    switch (action) {
-    | ChangeText(text) => ReasonReact.Update({...state, text})
-    },
-  render: self =>
+  render: _self =>
     <View>
+      <Button title="Back" onPress=onBack> {ReasonReact.string("Back")} </Button>
       <TextInput
-        ?autoFocus
+        onChangeText={title => onNoteChanged({...note, title})}
+        placeholder="Title"
+        value={note.title}
+      />
+      <TextInput
+        autoFocus
         multiline=true
-        onChangeText={text => self.send(ChangeText(text))}
+        onChangeText={text => onNoteChanged({...note, text})}
         underlineColorAndroid="transparent"
-        value={self.state.text}
+        placeholder="Write your note here"
+        value={note.text}
       />
     </View>,
 };
